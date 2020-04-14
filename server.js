@@ -59,7 +59,7 @@ io.on('connection', function(client){
 
         client.on('disconnect', function(){
             if (messageReceived) {
-                sendTelegramMessage(chatId, `*${visitorName}(${userId}) отключился`);
+                sendTelegramMessage(chatId, `*(${userId})* отключился`, 'Markdown');
             }
         });
     });
