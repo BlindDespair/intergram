@@ -28,7 +28,7 @@ app.post('/hook', function(req, res){
                 "Markdown");
         } else if (reply) {
             let replyText = reply.text || "";
-            let userId = replyText.split(':')[0];
+            let userId = replyText.replace(/.*\(|\).*/g, '');
             io.emit(chatId + "-" + userId, {name, text, from: 'admin'});
         } else if (text){
             io.emit(chatId, {name, text, from: 'admin'});
@@ -59,7 +59,7 @@ io.on('connection', function(client){
 
         client.on('disconnect', function(){
             if (messageReceived) {
-                sendTelegramMessage(chatId, userId + " has left");
+                sendTelegramMessage(chatId, `*${visitorName}(${userId}) отключился`);
             }
         });
     });
