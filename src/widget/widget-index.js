@@ -2,7 +2,9 @@ import { h, render } from 'preact';
 import Widget from './widget';
 import {defaultConfiguration} from './default-configuration';
 
-if (window.attachEvent) {
+if (document.readyState === 'complete') {
+    injectChat();
+} if (window.attachEvent) {
     window.attachEvent('onload', injectChat);
 } else {
     window.addEventListener('load', injectChat, false);

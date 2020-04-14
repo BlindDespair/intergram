@@ -10,6 +10,8 @@ export const defaultConfiguration = {
     autoNoResponse: 'It seems that no one is available to answer right now. Please tell us how we can ' +
     'contact you, and we will get back to you as soon as we can.',
     placeholderText: 'Send a message...',
+    namePlaceholderText: 'Enter your name',
+    customerChatName: 'Me',
     displayMessageTime: true,
     mainColor: '#1f8ceb',
     alwaysUseFloatingButton: false,
