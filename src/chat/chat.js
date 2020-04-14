@@ -27,7 +27,7 @@ export default class Chat extends Component {
         userId: this.props.userId,
       });
     });
-    this.socket.on(this.props.chatId, this.incomingMessage);
+
     this.socket.on(
       this.props.chatId + "-" + this.props.userId,
       this.incomingMessage
@@ -93,7 +93,7 @@ export default class Chat extends Component {
       this.socket.send({
         text,
         from: "visitor",
-        visitorName: this.props.conf.visitorName,
+        visitorName: this.state.visitorName,
       });
       this.input.value = "";
 
