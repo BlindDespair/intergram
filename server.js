@@ -9,6 +9,7 @@ const io = require('socket.io')(http);
 
 app.use(express.static('dist', {index: 'demo.html', maxage: '4h'}));
 app.use(bodyParser.json());
+app.use(compression());
 
 // handle admin Telegram messages
 app.post('/hook', function(req, res){
