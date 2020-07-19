@@ -1,17 +1,17 @@
-import * as store from "store";
-import io from "socket.io-client";
+import * as store from 'store';
+import io from 'socket.io-client';
 
-import { h, Component } from "preact";
-import MessageArea from "./message-area";
+import { h, Component } from 'preact';
+import MessageArea from './message-area';
 
 export default class Chat extends Component {
-  autoResponseState = "pristine"; // pristine, set or canceled
+  autoResponseState = 'pristine'; // pristine, set or canceled
   autoResponseTimer = 0;
 
   constructor(props) {
     super(props);
     if (store.enabled) {
-      this.messagesKey = "messages" + "." + props.chatId + "." + props.host;
+      this.messagesKey = 'messages' + '.' + props.chatId + '.' + props.host;
       this.state.messages =
         store.get(this.messagesKey) || store.set(this.messagesKey, []);
     } else {
@@ -21,22 +21,22 @@ export default class Chat extends Component {
 
   componentDidMount() {
     this.socket = io.connect();
-    this.socket.on("connect", () => {
-      this.socket.emit("register", {
+    this.socket.on('connect', () => {
+      this.socket.emit('register', {
         chatId: this.props.chatId,
         userId: this.props.userId,
       });
     });
 
     this.socket.on(
-      this.props.chatId + "-" + this.props.userId,
+      this.props.chatId + '-' + this.props.userId,
       this.incomingMessage
     );
 
     if (!this.state.messages.length) {
       this.writeToMessages({
         text: this.props.conf.introMessage,
-        from: "admin",
+        from: 'admin',
       });
     }
   }
@@ -92,40 +92,40 @@ export default class Chat extends Component {
       let text = this.input.value;
       this.socket.send({
         text,
-        from: "visitor",
+        from: 'visitor',
         visitorName: this.state.visitorName,
       });
-      this.input.value = "";
+      this.input.value = '';
 
-      if (this.autoResponseState === "pristine") {
+      if (this.autoResponseState === 'pristine') {
         setTimeout(() => {
           this.writeToMessages({
             text: this.props.conf.autoResponse,
-            from: "admin",
+            from: 'admin',
           });
         }, 500);
 
         this.autoResponseTimer = setTimeout(() => {
           this.writeToMessages({
             text: this.props.conf.autoNoResponse,
-            from: "admin",
+            from: 'admin',
           });
-          this.autoResponseState = "canceled";
+          this.autoResponseState = 'canceled';
         }, 60 * 1000);
-        this.autoResponseState = "set";
+        this.autoResponseState = 'set';
       }
     }
   };
 
   incomingMessage = (msg) => {
     this.writeToMessages(msg);
-    if (msg.from === "admin") {
-      document.getElementById("messageSound").play();
+    if (msg.from === 'admin') {
+      document.getElementById('messageSound').play();
 
-      if (this.autoResponseState === "pristine") {
-        this.autoResponseState = "canceled";
-      } else if (this.autoResponseState === "set") {
-        this.autoResponseState = "canceled";
+      if (this.autoResponseState === 'pristine') {
+        this.autoResponseState = 'canceled';
+      } else if (this.autoResponseState === 'set') {
+        this.autoResponseState = 'canceled';
         clearTimeout(this.autoResponseTimer);
       }
     }
@@ -143,7 +143,7 @@ export default class Chat extends Component {
           messages.push(msg);
         });
       } catch (e) {
-        console.log("failed to add new message to local storage", e);
+        console.log('failed to add new message to local storage', e);
         store.set(this.messagesKey, []);
       }
     }
