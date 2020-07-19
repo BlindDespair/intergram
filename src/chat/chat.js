@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 
 import { h, Component } from 'preact';
 import MessageArea from './message-area';
+import SendMessageIcon from './send-message-icon';
 
 export default class Chat extends Component {
   autoResponseState = 'pristine'; // pristine, set or canceled
@@ -12,8 +13,7 @@ export default class Chat extends Component {
     super(props);
     if (store.enabled) {
       this.messagesKey = 'messages' + '.' + props.chatId + '.' + props.host;
-      this.state.messages =
-        store.get(this.messagesKey) || store.set(this.messagesKey, []);
+      this.state.messages = store.get(this.messagesKey) || store.set(this.messagesKey, []);
     } else {
       this.state.messages = [];
     }
@@ -28,10 +28,7 @@ export default class Chat extends Component {
       });
     });
 
-    this.socket.on(
-      this.props.chatId + '-' + this.props.userId,
-      this.incomingMessage
-    );
+    this.socket.on(this.props.chatId + '-' + this.props.userId, this.incomingMessage);
 
     if (!this.state.messages.length) {
       this.writeToMessages({
@@ -45,13 +42,22 @@ export default class Chat extends Component {
     if (!state.visitorName) {
       return (
         <div>
+          {this.props.conf.welcomeMessage && <div className="welcome-box">{this.props.conf.welcomeMessage}</div>}
           <input
             class="textarea"
             type="text"
             key="visitorName"
+            ref={(input) => {
+              this.nameInput = input;
+            }}
             placeholder={this.props.conf.namePlaceholderText}
             onKeyUp={this.handleNameKeyup}
           />
+          <SendMessageIcon
+            className="send-message-button"
+            color={this.props.conf.mainColor}
+            onClick={this.updateName}
+          ></SendMessageIcon>
         </div>
       );
     }
@@ -70,11 +76,13 @@ export default class Chat extends Component {
           }}
           onKeyPress={this.handleKeyPress}
         />
+        <SendMessageIcon
+          className="send-message-button"
+          color={this.props.conf.mainColor}
+          onClick={this.sendMessage}
+        ></SendMessageIcon>
 
-        <a
-          class="banner"
-          href="https://github.com/idoco/intergram"
-          target="_blank">
+        <a class="banner" href="https://github.com/idoco/intergram" target="_blank">
           Powered by <b>Intergram</b>&nbsp;
         </a>
       </div>
@@ -82,38 +90,55 @@ export default class Chat extends Component {
   }
 
   handleNameKeyup = (e) => {
-    if (e.keyCode == 13 && e.target.value) {
-      this.setState({ visitorName: e.target.value });
+    if (e.keyCode !== 13) {
+      return;
     }
+    this.updateName();
+  };
+
+  updateName = () => {
+    if (!this.nameInput || !this.nameInput.value) {
+      return;
+    }
+    let name = this.nameInput.value;
+    this.setState({ visitorName: name });
   };
 
   handleKeyPress = (e) => {
-    if (e.keyCode == 13 && this.input.value) {
-      let text = this.input.value;
-      this.socket.send({
-        text,
-        from: 'visitor',
-        visitorName: this.state.visitorName,
-      });
-      this.input.value = '';
+    if (e.keyCode !== 13) {
+      return;
+    }
+    this.sendMessage();
+  };
 
-      if (this.autoResponseState === 'pristine') {
-        setTimeout(() => {
-          this.writeToMessages({
-            text: this.props.conf.autoResponse,
-            from: 'admin',
-          });
-        }, 500);
+  sendMessage = () => {
+    if (!this.input || !this.input.value) {
+      return;
+    }
+    let text = this.input.value;
+    this.socket.send({
+      text,
+      from: 'visitor',
+      visitorName: this.state.visitorName,
+    });
+    this.input.value = '';
 
-        this.autoResponseTimer = setTimeout(() => {
-          this.writeToMessages({
-            text: this.props.conf.autoNoResponse,
-            from: 'admin',
-          });
-          this.autoResponseState = 'canceled';
-        }, 60 * 1000);
-        this.autoResponseState = 'set';
-      }
+    if (this.autoResponseState === 'pristine') {
+      setTimeout(() => {
+        this.writeToMessages({
+          text: this.props.conf.autoResponse,
+          from: 'admin',
+        });
+      }, 500);
+
+      this.autoResponseTimer = setTimeout(() => {
+        this.writeToMessages({
+          text: this.props.conf.autoNoResponse,
+          from: 'admin',
+        });
+        this.autoResponseState = 'canceled';
+      }, 60 * 1000);
+      this.autoResponseState = 'set';
     }
   };
 

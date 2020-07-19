@@ -11,6 +11,7 @@ export const defaultConfiguration = {
     'contact you, and we will get back to you as soon as we can.',
     placeholderText: 'Send a message...',
     namePlaceholderText: 'Enter your name',
+    welcomeMessage: 'Welcome! Please, submit your name and our operator will get in touch with you as soon as possible!',
     customerChatName: 'Me',
     displayMessageTime: true,
     mainColor: '#1f8ceb',
